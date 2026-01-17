@@ -103,7 +103,7 @@ export class BattleModelDetailsComponent implements OnInit {
               // console.log('sceneBin', sceneBin, enemyData)
               this.actionSequence = actionSequences[this.selectedHrcId.slice(0, -1) + 'b']
               console.log('actionSequence', this.actionSequence)
-              this.scripts = this.actionSequence.scripts.map((script, i) => {
+              this.scripts = this.actionSequence?.scripts?.map((script, i) => {
                 const s = {id: i, script, name: '???', play:script.map(s => parseInt(s.raw.substring(0,2),16)).filter(a => a <= 0x8d)}
                 if(this.actionSequence.type === 'player') {
                   for (const player of metadataPlayer) {
@@ -117,11 +117,11 @@ export class BattleModelDetailsComponent implements OnInit {
                   if(s.id === 0) s.name = 'Idle'
                   if(s.id === 1) s.name = 'Hurt'
                   if(s.id === 2) s.name = 'Hurt Critical'
-                  const actionIndex = enemyData.enemy.actionSequenceIndex.findIndex(i => i === s.id)
+                  const actionIndex = enemyData?.enemy?.actionSequenceIndex?.findIndex(i => i === s.id) ?? -1
                   if (actionIndex >= 0) {
-                    const actionName = enemyData.scene.attackData[actionIndex].name
+                    const actionName = enemyData?.scene?.attackData?.[actionIndex]?.name
                     // console.log('actionIndex', s.id, actionIndex, actionName)
-                    s.name = actionName
+                    if (actionName) s.name = actionName
                   }
                 }
                 
@@ -167,8 +167,9 @@ export class BattleModelDetailsComponent implements OnInit {
     this.http.get(this.BATTLE_LGP_BASE_URL + this.selectedHrcId + '.hrc.gltf').subscribe(modelGLTF => {
       this.modelGLTF = modelGLTF;
       this.bodyAnimationNames = [];
-      for (let i = 0; i < modelGLTF['animations'].length; i++) {
-        let bodyAnimation = modelGLTF['animations'][i];
+      const animations = modelGLTF['animations'] || [];
+      for (let i = 0; i < animations.length; i++) {
+        let bodyAnimation = animations[i];
         let bodyAnimationId = bodyAnimation.name;
         this.bodyAnimationIds.push(bodyAnimationId);
         this.bodyAnimationIdToIndexMap[bodyAnimationId] = i;
